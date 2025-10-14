@@ -19,9 +19,8 @@ body {
   padding: 30px;
   text-align: center;
   max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-   margin-top: 20px;
+  min-height: 580px;
+  margin: 20px auto;
 }
 #quiz-container h2 {
   font-size: 1.4rem;
@@ -50,14 +49,13 @@ body {
 }
         
 .option:hover {
-  border-color: #2575fc;
+  border-color: #2574fc80;
   background: #e3f2fd;
 }
         
 .option.selected {
-  border-color: #2575fc;
+  border-color: #2575fc80;
   background: #e3f2fd;
-  box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.3);
 }
         
 .feedback {
