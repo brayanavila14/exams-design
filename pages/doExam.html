@@ -9,8 +9,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>Examen</h1>
-
+    <div class="exam-header">
+      <h1 id="exam-title"></h1>
+      <p class="info-exam"></p>
+    </div>
     <form id="exam-form">
       <div class="user-info">
         <label for="student-name">Nombre del estudiante</label>
@@ -19,12 +21,12 @@
 
       <div id="questions-container"></div>
 
-      <button type="submit" class="submit-btn">Enviar Examen</button>
+      <div class="button-group">
+        <button onclick="window.location.href='../index.html'" class="back-btn">Volver al inicio</button>
+        <button type="submit" class="submit-btn">Enviar Examen</button>
+      </div>
     </form>
-
     <div id="result" class="result"></div>
-
-    <button type="button" onclick="window.location.href='../index.html'" class="back-btn">Volver al inicio</button>
   </div>
 
   <script src="../scripts/doExam.js"></script>

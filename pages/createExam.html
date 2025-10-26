@@ -13,7 +13,7 @@
     <form id="create-exam-form">
       <section class="exam-info">
         <label for="exam-title">Título del Examen:</label>
-        <input type="text" id="exam-title" name="exam-title" class="input" required>
+        <input type="text" id="exam-title" name="exam-title" class="input" placeholder="Examen de... (Materia o tema)" required>
 
         <label for="exam-description">Descripción del Examen:</label>
         <textarea id="exam-description" name="exam-description" class="input" rows="3" required></textarea>
@@ -46,7 +46,7 @@
       </div>
     </form>
   </div>
-
+  <button type="button" class="clear-btn" onclick="localStorage.removeItem('examDraft'); location.reload();">Limpiar Examen</button>
   <script src="../scripts/createExam.js"></script>
 </body>
 </html>

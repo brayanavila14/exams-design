@@ -1,4 +1,8 @@
 // Simulación de preguntas (más adelante podemos cargarlas desde localStorage)
+const exam = {
+    title: "Examen de JavaScript",
+    descriptions: "Responde las siguientes preguntas sobre JavaScript."
+}
 const questions = [
     {
         text: "¿Cuál es el lenguaje que se ejecuta en el navegador?",
@@ -18,6 +22,13 @@ const questions = [
 ];
 
 const container = document.getElementById("questions-container");
+const form = document.getElementById("exam-form");
+const examTitle = document.getElementById("exam-title");
+const examDesc = document.querySelector(".info-exam");
+
+// Configurar título y descripción del examen
+examTitle.textContent = exam.title;
+examDesc.textContent = exam.descriptions;
 
 // Mostrar preguntas
 questions.forEach((q, index) => {
@@ -35,8 +46,7 @@ questions.forEach((q, index) => {
     container.appendChild(div);
 });
 
-// Manejo del formulario
-document.getElementById("exam-form").addEventListener("submit", (e) => {
+form.addEventListener("submit", (e) => {
     e.preventDefault();
 
     const name = document.getElementById("student-name").value.trim();
@@ -50,7 +60,19 @@ document.getElementById("exam-form").addEventListener("submit", (e) => {
     });
 
     const total = questions.length;
-    const resultDiv = document.getElementById("result");
-    resultDiv.textContent = `${name}, tu puntaje final es ${score}/${total}`;
-    resultDiv.classList.add("show");
+    const calificacion = ((score / total) * 5).toFixed(2);
+
+    const mensaje = `${name}, tu calificación final es ${calificacion}/5 — ${calificacion >= 3.2 ? "¡Aprobado! 🎉" : "Reprobado 😔"}`;
+
+    showResult(mensaje, calificacion >= 3.2 ? "success" : "error");
 });
+
+function showResult(message, type = "success") {
+    const result = document.getElementById("result");
+    result.textContent = message;
+    result.className = `result show ${type}`;
+
+    setTimeout(() => {
+        result.classList.remove("show");
+    }, 5000);
+}
