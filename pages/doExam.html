@@ -26,9 +26,17 @@
         <button type="submit" class="submit-btn">Enviar Examen</button>
       </div>
     </form>
-    <div id="result" class="result"></div>
   </div>
-
+  <div id="result-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="modal-message"></h2>
+      <p id="modal-estado"></p>
+      <div class="modal-actions">
+        <button id="retry-btn" class="btn retry">Repetir examen</button>
+        <button id="back-btn" class="btn back">Volver al inicio</button>
+      </div>
+    </div>
+  </div>
   <script src="../scripts/doExam.js"></script>
 </body>
 </html>
