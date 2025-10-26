@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realizar Examen</title>
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../styles/doExam.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Examen</h1>
+
+    <form id="exam-form">
+      <div class="user-info">
+        <label for="student-name">Nombre del estudiante</label>
+        <input type="text" id="student-name" placeholder="Tu nombre aquí" required>
+      </div>
+
+      <div id="questions-container"></div>
+
+      <button type="submit" class="submit-btn">Enviar Examen</button>
+    </form>
+
+    <div id="result" class="result"></div>
+
+    <button type="button" onclick="window.location.href='../index.html'" class="back-btn">Volver al inicio</button>
+  </div>
+
+  <script src="../scripts/doExam.js"></script>
+</body>
+</html>
