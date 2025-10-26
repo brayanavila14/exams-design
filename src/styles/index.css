@@ -1,0 +1,48 @@
+@import url(layout.css);
+.container {
+    max-width: 600px;
+    height: 350px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.title {
+  text-align: center;
+  margin: 20px 0;
+  color: #444;
+}
+.buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+}
+.buttons button {
+    font-size: 24px;
+    width: 50%;
+    color: #444;
+    padding: 10px 20px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 5px;
+    background-color: #eee;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+.buttons button:hover {
+    background-color: #ddd;
+}
+.buttons button:active {
+    box-shadow: none;
+}
+footer {
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+    margin-top: 20px;
+    color: #777;
+}
