@@ -4,18 +4,18 @@ const form = document.getElementById("exam-form");
 const examTitle = document.getElementById("exam-title");
 const examDesc = document.querySelector(".info-exam");
 
-examTitle.textContent = exam.title || "Examen sin título";
-examDesc.textContent = exam.description || "Sin descripción";
+examTitle.textContent = capitalize(exam.title) || "Examen sin título";
+examDesc.textContent = capitalize(exam.description) || "Sin descripción";
 
 exam.questions.forEach((q, index) => {
     const div = document.createElement("div");
     div.classList.add("question-block");
     div.innerHTML = `
-    <h3>${index + 1}. ${q.question}</h3>
+    <h3>${index + 1}. ${capitalize(q.question)}</h3>
         ${q.options.map((opt) => `
             <label>
             <input type="radio" name="question${index}" value="${opt}" required>
-            ${opt}
+            ${capitalize(opt)}
             </label><br>
       `).join("")}
     `;
@@ -24,12 +24,6 @@ exam.questions.forEach((q, index) => {
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("student-name").value.trim();
-    if (!name) {
-        alert("Por favor, escribe tu nombre antes de enviar el examen.");
-        return;
-    }
-
     let score = 0;
 
     exam.questions.forEach((q, index) => {
@@ -44,7 +38,7 @@ form.addEventListener("submit", (e) => {
     const total = exam.questions.length;
     const calificacion = ((score / total) * 5).toFixed(2);
 
-    const mensaje = `${name}, tu calificación final es ${calificacion}/5.00`;
+    const mensaje = `Tu calificación final es ${calificacion}/5.00`;
     const estado = calificacion >= 3.2 ? "¡Aprobado! 🎉" : "Reprobado 😔";
 
     showModal(mensaje, estado, calificacion >= 3.2 ? "success" : "error");
@@ -66,4 +60,8 @@ function showModal(message, estado, type = "success") {
     document.getElementById("back-btn").onclick = () => {
         window.location.href = "../index.html";
     };
+}
+function capitalize(text) {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
