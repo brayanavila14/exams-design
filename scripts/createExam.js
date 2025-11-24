@@ -3,13 +3,18 @@ const submitButton = document.getElementById("submitButton");
 const titleExam = document.getElementById("exam-title");
 const descriptionExam = document.getElementById("exam-description");
 const addQuestionBtn = document.getElementById("add-question");
+
 const savedDraft = localStorage.getItem("examDraft") || null;
+
 let examDraft = {
     title: "",
     description: "",
     questions: []
 };
 
+let currentPage = 0; // Página actual
+
+// -------------------- Guardar Draft y Examen Final --------------------
 function saveDraft() {
     localStorage.setItem("examDraft", JSON.stringify(examDraft));
 }
@@ -18,6 +23,7 @@ function saveFinalExam() {
     localStorage.setItem('finalExam', JSON.stringify(examDraft));
 }
 
+// -------------------- Crear Bloque de Pregunta --------------------
 function createQuestionBlock(q = null) {
     const questionBlock = document.createElement('div');
     questionBlock.className = 'question-block';
@@ -27,28 +33,27 @@ function createQuestionBlock(q = null) {
     const options = q && q.options && q.options.length > 0 ? q.options : [""];
 
     const optionsHTML = options.map((opt, index) => `
-
       <div class="option-container">
         <input type="text" name="options" class="option-input input" value="${opt}" placeholder="Opción ${index + 1}" required>
         ${index === options.length - 1 ? '<button type="button" class="add-option">+</button>' : ""}
       </div>
-
     `).join("");
 
     questionBlock.innerHTML = `
-    <label>Pregunta:</label>
-    <input type="text" name="question-text" class="input" value="${questionText}" required>
+        <label>Pregunta:</label>
+        <input type="text" name="question-text" class="input" value="${questionText}" required>
 
-    <label>Respuesta Correcta:</label>
-    <input type="text" name="correct-answer" class="input" value="${correctAnswer}" required>
+        <label>Respuesta Correcta:</label>
+        <input type="text" name="correct-answer" class="input" value="${correctAnswer}" required>
 
-    <label>Opciones:</label>
-    ${optionsHTML}
-  `;
+        <label>Opciones:</label>
+        ${optionsHTML}
+    `;
 
     return questionBlock;
 }
 
+// -------------------- Cargar Draft --------------------
 if (savedDraft) {
     examDraft = JSON.parse(savedDraft);
     titleExam.value = examDraft.title;
@@ -57,19 +62,18 @@ if (savedDraft) {
 
     if (examDraft.questions.length > 0) {
         examDraft.questions.forEach(q => {
-            const block = createQuestionBlock(q);
-            container.appendChild(block);
+            container.appendChild(createQuestionBlock(q));
         });
     } else {
         container.appendChild(createQuestionBlock());
     }
-
 } else {
     if (!container.querySelector('.question-block')) {
         container.appendChild(createQuestionBlock());
     }
 }
 
+// -------------------- Actualizar Draft desde el DOM --------------------
 function updateDraftFromDOM() {
     examDraft.title = titleExam.value.trim();
     examDraft.description = descriptionExam.value.trim();
@@ -93,6 +97,7 @@ function updateDraftFromDOM() {
     saveDraft();
 }
 
+// -------------------- Validación --------------------
 function validationExam(block) {
     const questionText = block.querySelector("input[name='question-text']").value.trim();
     const correctAnswer = block.querySelector("input[name='correct-answer']").value.trim();
@@ -149,24 +154,64 @@ function validationExamFinish(block) {
     return true;
 }
 
+// -------------------- Función para mostrar solo la pregunta actual --------------------
+function showQuestion(page) {
+    const blocks = container.querySelectorAll('.question-block');
+    blocks.forEach((block, index) => {
+        block.style.display = index === page ? 'block' : 'none';
+    });
+    document.getElementById('page-info').textContent = `Pregunta ${page + 1} de ${blocks.length}`;
+
+    document.getElementById('prev-question').disabled = page === 0;
+    document.getElementById('next-question').disabled = page === blocks.length - 1;
+}
+
+// -------------------- Inicializar paginación --------------------
+showQuestion(currentPage);
+
+// -------------------- Botones de paginación --------------------
+document.getElementById('prev-question').addEventListener('click', () => {
+    if (currentPage > 0) {
+        currentPage--;
+        showQuestion(currentPage);
+    }
+});
+
+document.getElementById('next-question').addEventListener('click', () => {
+    const lastBlock = container.querySelectorAll('.question-block')[currentPage];
+    const valid = validationExam(lastBlock);
+    if (!valid) return;
+
+    if (currentPage < container.querySelectorAll('.question-block').length - 1) {
+        currentPage++;
+        showQuestion(currentPage);
+    }
+});
+
+// -------------------- Guardar examen final --------------------
 submitButton.addEventListener("click", (e) => {
     e.preventDefault();
+    const lastBlock = container.querySelectorAll('.question-block')[currentPage][0] || container.querySelector('.question-block:last-child');
     const checked = validationExamFinish(container.querySelector('.question-block:last-child'));
     if (checked === false) return;
 
     saveFinalExam();
     alert("✅ Examen final guardado correctamente.");
     localStorage.removeItem("examDraft");
+
     container.innerHTML = "";
     titleExam.value = "";
     descriptionExam.value = "";
-    const newBlock = createQuestionBlock();
-    container.appendChild(newBlock);
+    container.appendChild(createQuestionBlock());
+    currentPage = 0;
+    showQuestion(currentPage);
 });
 
+// -------------------- Agregar opción --------------------
 container.addEventListener('click', (e) => {
     if (!e.target.classList.contains('add-option')) return;
-    const checked = validationExam(container.querySelector('.question-block:last-child'));
+    const lastBlock = container.querySelectorAll('.question-block')[currentPage][0] || container.querySelector('.question-block:last-child');
+    const checked = validationExam(lastBlock);
     if (checked === false) return;
 
     const currentQuestionBlock = e.target.closest('.question-block');
@@ -202,14 +247,21 @@ container.addEventListener('click', (e) => {
     updateDraftFromDOM();
 });
 
+// -------------------- Agregar nueva pregunta --------------------
 addQuestionBtn.addEventListener('click', () => {
+    const lastBlock = container.querySelectorAll('.question-block')[currentPage][0] || container.querySelector('.question-block:last-child');
     const checked = validationExamFinish(container.querySelector('.question-block:last-child'));
     if (checked === false) return;
+
     const newBlock = createQuestionBlock();
     container.appendChild(newBlock);
     updateDraftFromDOM();
+
+    currentPage = container.querySelectorAll('.question-block').length - 1;
+    showQuestion(currentPage);
 });
 
+// -------------------- Guardar draft al escribir --------------------
 document.addEventListener('input', (e) => {
     if (e.target.classList.contains('input')) {
         updateDraftFromDOM();
