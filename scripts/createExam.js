@@ -1,217 +1,265 @@
 const container = document.getElementById("questions-container");
 const submitButton = document.getElementById("submitButton");
-const titleExam = document.getElementById("exam-title");
-const descriptionExam = document.getElementById("exam-description");
-const addQuestionBtn = document.getElementById("add-question");
-const savedDraft = localStorage.getItem("examDraft") || null;
-let examDraft = {
-    title: "",
-    description: "",
-    questions: []
+const nextBtn = document.getElementById("next-question");
+const prevBtn = document.getElementById("prev-question");
+const pageInfo = document.getElementById("page-info");
+
+const openExamModalBtn = document.getElementById("open-exam-modal");
+const examModal = document.getElementById("exam-modal");
+const closeExamModal = document.getElementById("close-exam-modal");
+const modalExamTitle = document.getElementById("modal-exam-title");
+const modalExamDescription = document.getElementById("modal-exam-description");
+const saveExamInfoBtn = document.getElementById("save-exam-info");
+
+let currentPage = 0;
+let currentQuestionBlock = container.querySelector(".question-block");
+
+let exams = {
+  title: "",
+  description: "",
+  questions: [],
 };
 
-function saveDraft() {
-    localStorage.setItem("examDraft", JSON.stringify(examDraft));
+/* -------------------- LOCAL STORAGE -------------------- */
+function saveToLocalStorage() {
+  localStorage.setItem("examData", JSON.stringify(exams));
 }
 
-function saveFinalExam() {
-    localStorage.setItem('finalExam', JSON.stringify(examDraft));
-}
+function loadFromLocalStorage() {
+  const data = localStorage.getItem("examData");
+  if (data) {
+    exams = JSON.parse(data);
+    modalExamTitle.value = exams.title;
+    modalExamDescription.value = exams.description;
 
-function createQuestionBlock(q = null) {
-    const questionBlock = document.createElement('div');
-    questionBlock.className = 'question-block';
-
-    const questionText = q ? q.question : "";
-    const correctAnswer = q ? q.correctAnswer : "";
-    const options = q && q.options && q.options.length > 0 ? q.options : [""];
-
-    const optionsHTML = options.map((opt, index) => `
-
-      <div class="option-container">
-        <input type="text" name="options" class="option-input input" value="${opt}" placeholder="Opción ${index + 1}" required>
-        ${index === options.length - 1 ? '<button type="button" class="add-option">+</button>' : ""}
-      </div>
-
-    `).join("");
-
-    questionBlock.innerHTML = `
-    <label>Pregunta:</label>
-    <input type="text" name="question-text" class="input" value="${questionText}" required>
-
-    <label>Respuesta Correcta:</label>
-    <input type="text" name="correct-answer" class="input" value="${correctAnswer}" required>
-
-    <label>Opciones:</label>
-    ${optionsHTML}
-  `;
-
-    return questionBlock;
-}
-
-if (savedDraft) {
-    examDraft = JSON.parse(savedDraft);
-    titleExam.value = examDraft.title;
-    descriptionExam.value = examDraft.description;
     container.innerHTML = "";
-
-    if (examDraft.questions.length > 0) {
-        examDraft.questions.forEach(q => {
-            const block = createQuestionBlock(q);
-            container.appendChild(block);
-        });
-    } else {
-        container.appendChild(createQuestionBlock());
-    }
-
-} else {
-    if (!container.querySelector('.question-block')) {
-        container.appendChild(createQuestionBlock());
-    }
-}
-
-function updateDraftFromDOM() {
-    examDraft.title = titleExam.value.trim();
-    examDraft.description = descriptionExam.value.trim();
-    examDraft.questions = [];
-
-    const questionBlocks = document.querySelectorAll('.question-block');
-
-    questionBlocks.forEach(block => {
-        const questionText = block.querySelector("input[name='question-text']").value.trim();
-        const correctAnswer = block.querySelector("input[name='correct-answer']").value.trim();
-        const optionsInputs = block.querySelectorAll(".option-input");
-        const options = Array.from(optionsInputs).map(input => input.value.trim());
-
-        examDraft.questions.push({
-            question: questionText || "",
-            correctAnswer: correctAnswer || "",
-            options: options.length > 0 ? options : [""]
-        });
+    exams.questions.forEach((q, idx) => {
+      const block = createNewQuestionBlock(idx);
+      block.querySelector('input[name="question-text"]').value = q.title;
+      const optionContainer = block.querySelector(".option-container");
+      optionContainer.remove(); // quitamos la opción inicial
+      q.options.forEach((opt, i) => {
+        const div = document.createElement("div");
+        div.classList.add("option-container");
+        div.innerHTML = `
+          <input type="radio" class="correct-option-radio" ${i === q.correctAnswer ? "checked" : ""}/>
+          <input type="text" class="option-input input" value="${opt}" placeholder="Opción ${i+1}" required />
+          <button type="button" class="remove-option">-</button>
+          <button type="button" class="add-option">+</button>
+        `;
+        block.appendChild(div);
+      });
+      container.appendChild(block);
     });
-
-    saveDraft();
+  }
 }
 
-function validationExam(block) {
-    const questionText = block.querySelector("input[name='question-text']").value.trim();
-    const correctAnswer = block.querySelector("input[name='correct-answer']").value.trim();
-    const options = Array.from(block.querySelectorAll(".option-input")).map(input => input.value.trim()).filter(opt => opt !== "");
-
-    if (!titleExam.value.trim() || !descriptionExam.value.trim()) {
-        alert("Por favor, completa el título y la descripción del examen.");
-        return false;
-    }
-
-    if (titleExam.value.trim().length < 15) {
-        alert("El título debe tener mínimo 15 caracteres.");
-        return false;
-    }
-
-    if (descriptionExam.value.trim().length < 30) {
-        alert("La descripción debe tener mínimo 30 caracteres.");
-        return false;
-    }
-
-    if (!questionText) {
-        alert("Indica la pregunta primero.");
-        return false;
-    }
-
-    if (questionText.length < 5) {
-        alert("La pregunta debe tener al menos 5 caracteres.");
-        return false;
-    }
-
-    if (!correctAnswer) {
-        alert("Debes indicar la respuesta correcta.");
-        return false;
-    }
-
-    return { correctAnswer, options };
-}
-
-function validationExamFinish(block) {
-    const data = validationExam(block);
-    if (!data) return false;
-    const { correctAnswer, options } = data;
-
-    if (options.length < 2) {
-        alert("Debes agregar al menos dos opciones.");
-        return false;
-    }
-
-    if (!options.includes(correctAnswer)) {
-        alert("La respuesta correcta debe estar entre las opciones.");
-        return false;
-    }
-
-    return true;
-}
-
-submitButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    const checked = validationExamFinish(container.querySelector('.question-block:last-child'));
-    if (checked === false) return;
-
-    saveFinalExam();
-    alert("✅ Examen final guardado correctamente.");
-    localStorage.removeItem("examDraft");
-    container.innerHTML = "";
-    titleExam.value = "";
-    descriptionExam.value = "";
-    const newBlock = createQuestionBlock();
-    container.appendChild(newBlock);
+/* -------------------- MODAL EXAM -------------------- */
+openExamModalBtn.addEventListener("click", () => {
+  modalExamTitle.value = exams.title;
+  modalExamDescription.value = exams.description;
+  examModal.style.display = "block";
 });
 
-container.addEventListener('click', (e) => {
-    if (!e.target.classList.contains('add-option')) return;
-    const checked = validationExam(container.querySelector('.question-block:last-child'));
-    if (checked === false) return;
+closeExamModal.addEventListener("click", () => {
+  examModal.style.display = "none";
+});
 
-    const currentQuestionBlock = e.target.closest('.question-block');
-    const currentOptions = currentQuestionBlock.querySelectorAll('.option-input');
-    const lastOptionValue = currentOptions[currentOptions.length - 1].value.trim();
-    if (!lastOptionValue) {
-        alert("Escribe algo en la opción antes de agregar.");
-        return;
+saveExamInfoBtn.addEventListener("click", () => {
+  const title = modalExamTitle.value.trim();
+  const desc = modalExamDescription.value.trim();
+  if (!title || !desc) {
+    alert("Debe completar título y descripción del examen.");
+    return;
+  }
+  exams.title = title;
+  exams.description = desc;
+  saveToLocalStorage();
+  examModal.style.display = "none";
+});
+
+/* -------------------- UTILS -------------------- */
+function renumber(container) {
+  container.querySelectorAll(".option-container").forEach((opt, i) => {
+    const input = opt.querySelector(".option-input");
+    if (input) input.placeholder = `Opción ${i + 1}`;
+  });
+}
+
+function updateButtons(container) {
+  const options = container.querySelectorAll(".option-container");
+  options.forEach((opt, i) => {
+    const plus = opt.querySelector(".add-option");
+    if (plus) plus.remove();
+    const minus = opt.querySelector(".remove-option");
+    if (minus) minus.style.display = options.length === 1 ? "none" : "inline-block";
+    if (i === options.length - 1) {
+      const add = document.createElement("button");
+      add.type = "button";
+      add.textContent = "+";
+      add.classList.add("add-option");
+      opt.appendChild(add);
     }
-    const nextOptionNumber = currentOptions.length + 1;
+  });
+}
 
-    const optionDiv = document.createElement('div');
-    optionDiv.className = 'option-container';
+function showQuestion(index) {
+  const questions = container.querySelectorAll(".question-block");
+  questions.forEach((q, i) => (q.style.display = i === index ? "block" : "none"));
+  currentQuestionBlock = questions[index];
+  pageInfo.textContent = `Pregunta ${index + 1} de ${questions.length}`;
+  prevBtn.disabled = index === 0;
+}
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'options';
-    input.className = 'option-input input';
-    input.placeholder = `Opción ${nextOptionNumber}`;
-    input.required = true;
+/* -------------------- CREAR PREGUNTA -------------------- */
+function createNewQuestionBlock(questionIndex) {
+  const block = document.createElement("div");
+  block.classList.add("question-block");
+  block.innerHTML = `
+    <div class="question-head" style="display:flex; justify-content:space-between; align-items:center;">
+      <label>Pregunta:</label>
+      <button type="button" class="delete-question" title="Eliminar Pregunta">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+    <input type="text" name="question-text" class="input" required />
+    <label>Opciones:</label>
+    <div class="option-container">
+      <input type="radio" name="correct-option-${questionIndex}" class="correct-option-radio" />
+      <input type="text" name="options" class="option-input input" placeholder="Opción 1" required />
+      <button type="button" class="add-option">+</button>
+    </div>
+  `;
+  return block;
+}
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'add-option';
-    btn.textContent = '+';
+/* -------------------- GUARDAR PREGUNTA -------------------- */
+function saveCurrentQuestion() {
+  if (!currentQuestionBlock) return;
+  const questionTitle = currentQuestionBlock.querySelector('input[name="question-text"]').value;
+  const optionInputs = currentQuestionBlock.querySelectorAll(".option-input");
+  const correctRadios = currentQuestionBlock.querySelectorAll(".correct-option-radio");
+  const options = Array.from(optionInputs).map(input => input.value);
+  const correctAnswer = Array.from(correctRadios).findIndex(r => r.checked);
+  exams.questions[currentPage] = { title: questionTitle, options, correctAnswer };
+  saveToLocalStorage();
+}
 
-    optionDiv.appendChild(input);
-    optionDiv.appendChild(btn);
+/* -------------------- VALIDACIONES -------------------- */
+function validateExamInfo() {
+  if (!exams.title || !exams.description) {
+    alert("Debe completar la información del examen primero.");
+    return false;
+  }
+  return true;
+}
 
-    currentQuestionBlock.appendChild(optionDiv);
+function validateCurrentQuestion() {
+  if (!validateExamInfo()) return false;
+  const title = currentQuestionBlock.querySelector('input[name="question-text"]').value.trim();
+  const optionInputs = currentQuestionBlock.querySelectorAll(".option-input");
+  const radios = currentQuestionBlock.querySelectorAll(".correct-option-radio");
+  if (!title) { alert("Debe escribir la pregunta."); return false; }
+
+  let hasCorrect = false, filledOptions = 0, emptyOption = false;
+  optionInputs.forEach((opt, i) => {
+    if (!opt.value.trim()) emptyOption = true; else filledOptions++;
+    if (radios[i].checked) hasCorrect = true;
+  });
+
+  if (emptyOption) { alert("Debe completar todas las opciones."); return false; }
+  if (filledOptions < 2) { alert("Debe agregar al menos 2 opciones."); return false; }
+  if (!hasCorrect) { alert("Debe seleccionar una respuesta correcta."); return false; }
+  return true;
+}
+
+/* -------------------- EVENTOS GLOBAL -------------------- */
+document.addEventListener("click", function (e) {
+  /* Agregar opción */
+  if (e.target.classList.contains("add-option")) {
+    const containerOptions = e.target.closest(".option-container").parentNode;
+    const lastOptionInput = containerOptions.querySelectorAll(".option-input");
+    if (lastOptionInput[lastOptionInput.length-1].value.trim() === "") { 
+      alert("Complete la opción antes de agregar otra."); return; 
+    }
     e.target.remove();
+    const newOption = document.createElement("div");
+    newOption.classList.add("option-container");
+    const count = containerOptions.querySelectorAll(".option-container").length + 1;
+    newOption.innerHTML = `
+      <input type="radio" class="correct-option-radio" />
+      <input type="text" class="option-input input" placeholder="Opción ${count}" required />
+      <button type="button" class="remove-option">-</button>
+      <button type="button" class="add-option">+</button>
+    `;
+    containerOptions.appendChild(newOption);
+    renumber(containerOptions);
+  }
 
-    updateDraftFromDOM();
-});
+  /* Eliminar opción */
+  if (e.target.classList.contains("remove-option")) {
+    const option = e.target.parentNode;
+    const containerOptions = option.parentNode;
+    option.remove();
+    updateButtons(containerOptions);
+    renumber(containerOptions);
+  }
 
-addQuestionBtn.addEventListener('click', () => {
-    const checked = validationExamFinish(container.querySelector('.question-block:last-child'));
-    if (checked === false) return;
-    const newBlock = createQuestionBlock();
-    container.appendChild(newBlock);
-    updateDraftFromDOM();
-});
+  /* Eliminar pregunta */
+  if (e.target.closest(".delete-question")) {
+    currentQuestionBlock = e.target.closest(".question-block");
+    const questions = container.querySelectorAll(".question-block");
 
-document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('input')) {
-        updateDraftFromDOM();
+    if (questions.length <= 1) {
+      alert("No se puede eliminar la última pregunta.");
+      return;
     }
+
+    if (confirm("¿Desea eliminar esta pregunta?")) {
+      const indexToRemove = Array.from(questions).indexOf(currentQuestionBlock);
+      currentQuestionBlock.remove();
+      exams.questions.splice(indexToRemove, 1);
+      saveToLocalStorage();
+      currentPage = Math.min(currentPage, container.querySelectorAll(".question-block").length - 1);
+      showQuestion(currentPage);
+    }
+  }
 });
+
+/* -------------------- NAVEGACIÓN -------------------- */
+nextBtn.addEventListener("click", () => {
+  if (!validateExamInfo() || !validateCurrentQuestion()) return;
+  saveCurrentQuestion();
+
+  const questions = container.querySelectorAll(".question-block");
+  if (currentPage === questions.length - 1) {
+    const newBlock = createNewQuestionBlock(questions.length);
+    container.appendChild(newBlock);
+  }
+  currentPage++;
+  showQuestion(currentPage);
+});
+
+prevBtn.addEventListener("click", () => {
+  saveCurrentQuestion();
+  currentPage--;
+  showQuestion(currentPage);
+});
+
+/* -------------------- GUARDAR EXAM -------------------- */
+submitButton.addEventListener("click", e => {
+  if (!validateExamInfo()) { e.preventDefault(); return; }
+  const questions = container.querySelectorAll(".question-block");
+  questions.forEach((_, idx) => {
+    currentPage = idx;
+    currentQuestionBlock = questions[idx];
+    saveCurrentQuestion();
+  });
+  if (exams.questions.length === 0) { alert("Debe agregar al menos una pregunta"); e.preventDefault(); return; }
+  console.log(exams);
+  alert("Examen guardado correctamente!");
+});
+
+/* -------------------- INICIALIZACIÓN -------------------- */
+loadFromLocalStorage();
+showQuestion(currentPage);
