@@ -1,82 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/x-icon" href="../../favicon.ico" />
-		<link rel="stylesheet" href="../styles/createExam.css" />
-		<title>Crear Examen</title>
-	</head>
-	<body>
-		<div class="container">
-			<h1>Crear un Nuevo Examen</h1>
-			<form id="create-exam-form">
-				<section class="exam-info">
-					<label for="exam-title">Título del Examen:</label>
-					<input
-						type="text"
-						id="exam-title"
-						name="exam-title"
-						class="input"
-						required
-					/>
 
-					<label for="exam-description">Descripción del Examen:</label>
-					<textarea
-						id="exam-description"
-						name="exam-description"
-						class="input"
-						rows="3"
-						required
-					></textarea>
-				</section>
-				<section class="exam-questions">
-					<h2>Preguntas del Examen</h2>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+	<link rel="stylesheet" href="../styles/createExam.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+	<title>Crear Examen</title>
+</head>
 
-					<div id="questions-container">
-						<div class="question-block">
+<body>
+	<div class="container">
+		<h1>
+			Crear un Nuevo Examen
+			<button type="button" id="open-exam-modal" title="Editar Info"><i class="fas fa-edit"></i>Info</button>
+		</h1>
+
+		<form id="create-exam-form">
+			<section class="exam-questions">
+				<h2>Preguntas del Examen</h2>
+
+				<div id="questions-container">
+					<div class="question-block">
+						<div class="question-head">
 							<label>Pregunta:</label>
-							<input type="text" name="question-text" class="input" required />
-							<label>Opciones:</label>
-							<div class="option-container">
-								<input
-									type="radio"
-									name="correct-option"
-									class="correct-option-radio"
-								/>
+							<button type="button" class="delete-question" title="Eliminar Pregunta">
+								<i class="fas fa-trash-alt"></i>
+							</button>
+						</div>
+						<input type="text" name="question-text" class="input" required />
 
-								<input
-									type="text"
-									name="options"
-									class="option-input input"
-									placeholder="Opción 1"
-									required
-								/>
-								<button type="button" class="add-option">+</button>
-							</div>
+						<label>Opciones:</label>
+						<div class="option-container">
+							<input type="radio" name="correct-option-0" class="correct-option-radio" />
+							<input type="text" name="options" class="option-input input" placeholder="Opción 1"
+								required />
+							<button type="button" class="add-option">+</button>
 						</div>
 					</div>
-					<div id="pagination-controls">
-						<button type="button" id="prev-question" disabled>Anterior</button>
-						<span id="page-info">Pregunta 1 de 1</span>
-						<button type="button" id="next-question">Siguiente</button>
-					</div>
-				</section>
-
-				<div class="actions">
-					<button id="submitButton" class="submitButton" type="submit">
-						Guardar Examen
-					</button>
-					<button
-						type="button"
-						class="back-btn"
-						onclick="window.location.href='../index.html'"
-					>
-						Volver al inicio
-					</button>
 				</div>
-			</form>
+
+				<div id="pagination-controls">
+					<button type="button" id="prev-question" disabled>Anterior</button>
+					<span id="page-info">Pregunta 1 de 1</span>
+					<button type="button" id="next-question">Siguiente</button>
+				</div>
+			</section>
+
+			<div class="actions">
+				<button id="submitButton" class="submitButton" type="submit">
+					Guardar Examen
+				</button>
+				<button type="button" class="back-btn" onclick="window.location.href='../index.html'">
+					Volver al inicio
+				</button>
+			</div>
+		</form>
+	</div>
+
+	<div id="exam-modal" class="modal">
+		<div class="modal-content">
+			<span id="close-exam-modal" class="close">&times;</span>
+			<h3>Información del Examen</h3>
+			<label>Título del Examen:</label>
+			<input type="text" id="modal-exam-title" class="input" />
+			<label>Descripción del Examen:</label>
+			<textarea id="modal-exam-description" class="input" rows="3"></textarea>
+			<button type="button" id="save-exam-info">Guardar Cambios</button>
 		</div>
-		<script src="../scripts/createExam.js"></script>
-	</body>
+	</div>
+
+	<script src="../scripts/createExam.js"></script>
+</body>
+
 </html>
