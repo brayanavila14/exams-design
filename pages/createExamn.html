@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,13 +8,29 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 	<title>Crear Examen</title>
 </head>
-
 <body>
+	<div id="exam-modal" class="modal">
+		<div class="modal-content">
+			<h3>Información del Examen</h3>
+			<label for="modal-exam-title">Título del Examen:</label>
+			<input type="text" id="modal-exam-title" class="input" />
+
+			<label for="modal-exam-description">Descripción del Examen:</label>
+			<textarea id="modal-exam-description" class="input" rows="3"></textarea>
+
+			<button type="button" id="save-exam-info">Guardar</button>
+		</div>
+	</div>
+
 	<div class="container">
-		<h1>
-			Crear un Nuevo Examen
-			<button type="button" id="open-exam-modal" title="Editar Info"><i class="fas fa-edit"></i>Info</button>
-		</h1>
+		<header class="exam-header">
+			<h1>
+				Crear un Nuevo Examen
+				<button type="button" id="open-exam-modal-btn" title="Editar Información">
+					<i class="fas fa-edit"></i> Info
+				</button>
+			</h1>
+		</header>
 
 		<form id="create-exam-form">
 			<section class="exam-questions">
@@ -48,27 +63,12 @@
 				</div>
 			</section>
 
-			<div class="actions">
-				<button id="submitButton" class="submitButton" type="submit">
-					Guardar Examen
-				</button>
-				<button type="button" class="back-btn" onclick="window.location.href='../index.html'">
-					Volver al inicio
-				</button>
+			<div class="actions button-group">
+				<button id="submitButton" class="submit-btn" type="submit">Guardar Examen</button>
+				<button type="button" class="back-btn" onclick="window.location.href='../index.html'">Volver al
+					inicio</button>
 			</div>
 		</form>
-	</div>
-
-	<div id="exam-modal" class="modal">
-		<div class="modal-content">
-			<span id="close-exam-modal" class="close">&times;</span>
-			<h3>Información del Examen</h3>
-			<label>Título del Examen:</label>
-			<input type="text" id="modal-exam-title" class="input" />
-			<label>Descripción del Examen:</label>
-			<textarea id="modal-exam-description" class="input" rows="3"></textarea>
-			<button type="button" id="save-exam-info">Guardar Cambios</button>
-		</div>
 	</div>
 
 	<script src="../scripts/createExam.js"></script>

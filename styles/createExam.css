@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background: #f2f5f9;
@@ -7,7 +13,6 @@ body {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  margin: 0;
   padding: 40px 10px;
   color: #333;
 }
@@ -15,7 +20,7 @@ body {
 .container {
   max-width: 850px;
   width: 100%;
-  background: #ffffff;
+  background: #fff;
   padding: 30px 40px;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -58,9 +63,8 @@ textarea {
   border: 1.5px solid #ccc;
   border-radius: 8px;
   font-size: 15px;
-  box-sizing: border-box;
-  transition: 0.2s;
   font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  transition: 0.2s;
 }
 
 textarea {
@@ -77,33 +81,37 @@ textarea:focus {
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
 }
 
-#open-exam-modal {
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+#open-exam-modal-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 6px 12px;
   background-color: #007bff;
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
 }
 
-#open-exam-modal i {
+#open-exam-modal-btn i {
   margin-right: 5px;
 }
 
-#open-exam-modal:hover {
+#open-exam-modal-btn:hover {
   background-color: #0056b3;
 }
-/* Estilos mínimos para modal funcional */
+
 .modal {
   position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5); /* Fondo semitransparente */
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;
@@ -115,7 +123,9 @@ textarea:focus {
   border-radius: 10px;
   max-width: 500px;
   width: 90%;
-  box-sizing: border-box;
+  position: relative;
+  transform: translateY(-140px);
+  animation: fadeIn 0.3s ease forwards;
 }
 
 .close {
@@ -127,7 +137,14 @@ textarea:focus {
   font-weight: bold;
 }
 
-/* ---------- BLOQUES DE PREGUNTA ---------- */
+.question-block {
+  background: #f9fafc;
+  border: 1px solid #e3e6ea;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
 .question-head {
   display: flex;
   justify-content: space-between;
@@ -135,29 +152,51 @@ textarea:focus {
   margin-bottom: 10px;
 }
 
-.question-head label {
-  margin: 0;
-}
-
 .delete-question {
   background: none;
   border: none;
   color: #ff4545;
-  cursor: pointer;
   font-size: 18px;
-  transition: color 0.2s ease;
 }
 
 .delete-question:hover {
   color: #ff0f0f;
 }
 
-.question-block {
-  background: #f9fafc;
-  border: 1px solid #e3e6ea;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
+.option-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.option-input {
+  flex: 1;
+}
+
+.add-option,
+.remove-option {
+  padding: 6px 14px;
+  font-size: 18px;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+}
+
+.add-option {
+  background-color: #007bff;
+}
+
+.add-option:hover {
+  background-color: #0056b3;
+}
+
+.remove-option {
+  background-color: #ff4545;
+}
+
+.remove-option:hover {
+  background-color: #ff0f0f;
 }
 
 .correct-option-radio {
@@ -194,45 +233,6 @@ textarea:focus {
   border-color: #3f8cff;
 }
 
-.option-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.option-input {
-  flex: 1;
-}
-
-.add-option,
-.remove-option {
-  padding: 6px 14px;
-  font-size: 18px;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.add-option {
-  background-color: #007bff;
-}
-
-.remove-option {
-  background-color: #ff4545;
-}
-
-.add-option:hover {
-  background-color: #0056b3;
-}
-
-.remove-option:hover {
-  background-color: #ff0f0f;
-}
-
-/* ---------- PAGINACIÓN ---------- */
 #pagination-controls {
   display: flex;
   align-items: center;
@@ -241,7 +241,8 @@ textarea:focus {
   margin-top: 25px;
 }
 
-#pagination-controls button {
+#pagination-controls button,
+#save-exam-info {
   background-color: #3f8cff;
   color: white;
   border: none;
@@ -250,10 +251,10 @@ textarea:focus {
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  transition: background 0.2s ease, transform 0.1s ease;
 }
 
-#pagination-controls button:hover:not(:disabled) {
+#pagination-controls button:hover:not(:disabled),
+#save-exam-info:hover:not(:disabled) {
   background-color: #3578d4;
   transform: translateY(-1px);
 }
@@ -270,7 +271,6 @@ textarea:focus {
   color: #333;
 }
 
-/* ---------- ACCIONES ---------- */
 .actions {
   display: flex;
   justify-content: center;
@@ -278,7 +278,7 @@ textarea:focus {
   margin-top: 25px;
 }
 
-.submitButton,
+.submit-btn,
 .back-btn {
   border: none;
   border-radius: 8px;
@@ -289,12 +289,12 @@ textarea:focus {
   font-weight: 500;
 }
 
-.submitButton {
+.submit-btn {
   background-color: #28a745;
   color: white;
 }
 
-.submitButton:hover {
+.submit-btn:hover {
   background-color: #218838;
 }
 
@@ -315,5 +315,56 @@ textarea:focus {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  .option-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #pagination-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  .submit-btn,
+  .back-btn,
+  #pagination-controls button,
+  #save-exam-info {
+    width: 100%;
   }
 }
