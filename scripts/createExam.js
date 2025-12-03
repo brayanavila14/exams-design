@@ -1,269 +1,309 @@
 const container = document.getElementById("questions-container");
-const submitButton = document.getElementById("submitButton");
-const titleExam = document.getElementById("exam-title");
-const descriptionExam = document.getElementById("exam-description");
-const addQuestionBtn = document.getElementById("add-question");
+const submitBtn = document.getElementById("submitButton");
+const nextBtn = document.getElementById("next-question");
+const prevBtn = document.getElementById("prev-question");
+const pageInfo = document.getElementById("page-info");
 
-const savedDraft = localStorage.getItem("examDraft") || null;
+const openModalBtn = document.getElementById("open-exam-modal-btn");
+const examModal = document.getElementById("exam-modal");
+const modalTitle = document.getElementById("modal-exam-title");
+const modalDesc = document.getElementById("modal-exam-description");
+const saveExamInfoBtn = document.getElementById("save-exam-info");
 
-let examDraft = {
+let currentPage = 0;
+let examFormulated = JSON.parse(localStorage.getItem("examFormulated")) || false;
+let exams = JSON.parse(localStorage.getItem("examData")) || {
     title: "",
     description: "",
-    questions: []
+    questions: [],
 };
 
-let currentPage = 0; // Página actual
+// --- LocalStorage y Modal ---
+const saveToLocalStorage = () => localStorage.setItem("examData", JSON.stringify(exams));
+const saveFormulated = () => localStorage.setItem("examFormulated", "true");
+const showModal = () => (examModal.style.display = "flex");
+const hideModal = () => (examModal.style.display = "none");
 
-// -------------------- Guardar Draft y Examen Final --------------------
-function saveDraft() {
-    localStorage.setItem("examDraft", JSON.stringify(examDraft));
-}
+openModalBtn.addEventListener("click", showModal);
 
-function saveFinalExam() {
-    localStorage.setItem('finalExam', JSON.stringify(examDraft));
-}
+saveExamInfoBtn.addEventListener("click", () => {
+    const title = modalTitle.value.trim();
+    const desc = modalDesc.value.trim();
 
-// -------------------- Crear Bloque de Pregunta --------------------
-function createQuestionBlock(q = null) {
-    const questionBlock = document.createElement('div');
-    questionBlock.className = 'question-block';
+    if (!title || !desc) return alert("Complete título y descripción.");
 
-    const questionText = q ? q.question : "";
-    const correctAnswer = q ? q.correctAnswer : "";
-    const options = q && q.options && q.options.length > 0 ? q.options : [""];
+    exams.title = title;
+    exams.description = desc;
+    saveToLocalStorage();
+    examFormulated = true;
+    saveFormulated();
+    hideModal();
+});
 
-    const optionsHTML = options.map((opt, index) => `
-      <div class="option-container">
-        <input type="text" name="options" class="option-input input" value="${opt}" placeholder="Opción ${index + 1}" required>
-        ${index === options.length - 1 ? '<button type="button" class="add-option">+</button>' : ""}
-      </div>
-    `).join("");
+if (!examFormulated) showModal();
 
-    questionBlock.innerHTML = `
-        <label>Pregunta:</label>
-        <input type="text" name="question-text" class="input" value="${questionText}" required>
+// --- Lógica de Opciones (Corrección de botones) ---
 
-        <label>Respuesta Correcta:</label>
-        <input type="text" name="correct-answer" class="input" value="${correctAnswer}" required>
+// 1. Función para organizar visualmente: Renumera y decide qué botones mostrar
+const updateOptionUI = (block, questionIndex) => {
+    const options = block.querySelectorAll(".option-container");
 
+    options.forEach((opt, i) => {
+        // Renumerar placeholder
+        const input = opt.querySelector(".option-input");
+        input.placeholder = `Opción ${i + 1}`;
+
+        // Arreglar nombre del radio para que solo se seleccione uno por pregunta
+        const radio = opt.querySelector(".correct-option-radio");
+        radio.name = `correct-option-${questionIndex}`;
+
+        // Lógica de botones + y -
+        const addBtn = opt.querySelector(".add-option");
+        const removeBtn = opt.querySelector(".remove-option");
+
+        // El botón "+" SOLO aparece en la ÚLTIMA opción
+        if (i === options.length - 1) {
+            addBtn.style.display = "inline-block";
+        } else {
+            addBtn.style.display = "none";
+        }
+
+        // El botón "-" NO aparece si es la única opción
+        if (options.length === 1) {
+            removeBtn.style.display = "none";
+        } else {
+            removeBtn.style.display = "inline-block";
+        }
+    });
+};
+
+// 2. Crear elemento de opción (simple, sin lógica de índice aquí)
+const createOptionElement = () => {
+    const div = document.createElement("div");
+    div.classList.add("option-container");
+    div.innerHTML = `
+        <input type="radio" class="correct-option-radio">
+        <input type="text" class="option-input input" required>
+        <button type="button" class="remove-option">-</button>
+        <button type="button" class="add-option">+</button>
+    `;
+    return div;
+};
+
+// --- Creación de Preguntas ---
+
+const createQuestionBlock = (questionData = null) => {
+    const block = document.createElement("div");
+    block.classList.add("question-block");
+    // Agregamos un div .options-list para separar las opciones del resto
+    block.innerHTML = `
+        <div class="question-head">
+            <label>Pregunta:</label>
+            <button type="button" class="delete-question"><i class="fas fa-trash-alt"></i></button>
+        </div>
+        <input type="text" name="question-text" class="input" required>
         <label>Opciones:</label>
-        ${optionsHTML}
+        <div class="options-list"></div>
     `;
 
-    return questionBlock;
-}
+    const optionsList = block.querySelector(".options-list");
+    const questionText = block.querySelector('input[name="question-text"]');
 
-// -------------------- Cargar Draft --------------------
-if (savedDraft) {
-    examDraft = JSON.parse(savedDraft);
-    titleExam.value = examDraft.title;
-    descriptionExam.value = examDraft.description;
-    container.innerHTML = "";
-
-    if (examDraft.questions.length > 0) {
-        examDraft.questions.forEach(q => {
-            container.appendChild(createQuestionBlock(q));
+    if (questionData) {
+        questionText.value = questionData.title;
+        questionData.options.forEach((opt, i) => {
+            const option = createOptionElement();
+            option.querySelector(".option-input").value = opt;
+            if (i === questionData.correctAnswer)
+                option.querySelector(".correct-option-radio").checked = true;
+            optionsList.appendChild(option);
         });
     } else {
-        container.appendChild(createQuestionBlock());
-    }
-} else {
-    if (!container.querySelector('.question-block')) {
-        container.appendChild(createQuestionBlock());
-    }
-}
-
-// -------------------- Actualizar Draft desde el DOM --------------------
-function updateDraftFromDOM() {
-    examDraft.title = titleExam.value.trim();
-    examDraft.description = descriptionExam.value.trim();
-    examDraft.questions = [];
-
-    const questionBlocks = document.querySelectorAll('.question-block');
-
-    questionBlocks.forEach(block => {
-        const questionText = block.querySelector("input[name='question-text']").value.trim();
-        const correctAnswer = block.querySelector("input[name='correct-answer']").value.trim();
-        const optionsInputs = block.querySelectorAll(".option-input");
-        const options = Array.from(optionsInputs).map(input => input.value.trim());
-
-        examDraft.questions.push({
-            question: questionText || "",
-            correctAnswer: correctAnswer || "",
-            options: options.length > 0 ? options : [""]
-        });
-    });
-
-    saveDraft();
-}
-
-// -------------------- Validación --------------------
-function validationExam(block) {
-    const questionText = block.querySelector("input[name='question-text']").value.trim();
-    const correctAnswer = block.querySelector("input[name='correct-answer']").value.trim();
-    const options = Array.from(block.querySelectorAll(".option-input")).map(input => input.value.trim()).filter(opt => opt !== "");
-
-    if (!titleExam.value.trim() || !descriptionExam.value.trim()) {
-        alert("Por favor, completa el título y la descripción del examen.");
-        return false;
+        optionsList.appendChild(createOptionElement());
     }
 
-    if (titleExam.value.trim().length < 15) {
-        alert("El título debe tener mínimo 15 caracteres.");
-        return false;
-    }
+    // Calculamos el índice para organizar los radios y placeholders
+    const currentIdx = container.querySelectorAll(".question-block").length;
+    updateOptionUI(block, currentIdx);
 
-    if (descriptionExam.value.trim().length < 30) {
-        alert("La descripción debe tener mínimo 30 caracteres.");
-        return false;
-    }
+    return block;
+};
 
-    if (!questionText) {
-        alert("Indica la pregunta primero.");
-        return false;
-    }
+// --- Navegación y Renderizado ---
 
-    if (questionText.length < 5) {
-        alert("La pregunta debe tener al menos 5 caracteres.");
-        return false;
-    }
+const showQuestion = (index) => {
+    const questions = container.querySelectorAll(".question-block");
 
-    if (!correctAnswer) {
-        alert("Debes indicar la respuesta correcta.");
-        return false;
-    }
-
-    return { correctAnswer, options };
-}
-
-function validationExamFinish(block) {
-    const data = validationExam(block);
-    if (!data) return false;
-    const { correctAnswer, options } = data;
-
-    if (options.length < 2) {
-        alert("Debes agregar al menos dos opciones.");
-        return false;
-    }
-
-    if (!options.includes(correctAnswer)) {
-        alert("La respuesta correcta debe estar entre las opciones.");
-        return false;
-    }
-
-    return true;
-}
-
-// -------------------- Función para mostrar solo la pregunta actual --------------------
-function showQuestion(page) {
-    const blocks = container.querySelectorAll('.question-block');
-    blocks.forEach((block, index) => {
-        block.style.display = index === page ? 'block' : 'none';
-    });
-    document.getElementById('page-info').textContent = `Pregunta ${page + 1} de ${blocks.length}`;
-
-    document.getElementById('prev-question').disabled = page === 0;
-    document.getElementById('next-question').disabled = page === blocks.length - 1;
-}
-
-// -------------------- Inicializar paginación --------------------
-showQuestion(currentPage);
-
-// -------------------- Botones de paginación --------------------
-document.getElementById('prev-question').addEventListener('click', () => {
-    if (currentPage > 0) {
-        currentPage--;
-        showQuestion(currentPage);
-    }
-});
-
-document.getElementById('next-question').addEventListener('click', () => {
-    const lastBlock = container.querySelectorAll('.question-block')[currentPage];
-    const valid = validationExam(lastBlock);
-    if (!valid) return;
-
-    if (currentPage < container.querySelectorAll('.question-block').length - 1) {
-        currentPage++;
-        showQuestion(currentPage);
-    }
-});
-
-// -------------------- Guardar examen final --------------------
-submitButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    const lastBlock = container.querySelectorAll('.question-block')[currentPage][0] || container.querySelector('.question-block:last-child');
-    const checked = validationExamFinish(container.querySelector('.question-block:last-child'));
-    if (checked === false) return;
-
-    saveFinalExam();
-    alert("✅ Examen final guardado correctamente.");
-    localStorage.removeItem("examDraft");
-
-    container.innerHTML = "";
-    titleExam.value = "";
-    descriptionExam.value = "";
-    container.appendChild(createQuestionBlock());
-    currentPage = 0;
-    showQuestion(currentPage);
-});
-
-// -------------------- Agregar opción --------------------
-container.addEventListener('click', (e) => {
-    if (!e.target.classList.contains('add-option')) return;
-    const lastBlock = container.querySelectorAll('.question-block')[currentPage][0] || container.querySelector('.question-block:last-child');
-    const checked = validationExam(lastBlock);
-    if (checked === false) return;
-
-    const currentQuestionBlock = e.target.closest('.question-block');
-    const currentOptions = currentQuestionBlock.querySelectorAll('.option-input');
-    const lastOptionValue = currentOptions[currentOptions.length - 1].value.trim();
-    if (!lastOptionValue) {
-        alert("Escribe algo en la opción antes de agregar.");
+    // Protección por si se borra todo
+    if (questions.length === 0) {
+        pageInfo.textContent = "0 de 0";
         return;
     }
-    const nextOptionNumber = currentOptions.length + 1;
 
-    const optionDiv = document.createElement('div');
-    optionDiv.className = 'option-container';
+    questions.forEach(
+        (q, i) => (q.style.display = i === index ? "block" : "none")
+    );
+    currentPage = index;
+    pageInfo.textContent = `Pregunta ${index + 1} de ${questions.length}`;
+    prevBtn.disabled = index === 0;
+};
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'options';
-    input.className = 'option-input input';
-    input.placeholder = `Opción ${nextOptionNumber}`;
-    input.required = true;
+const saveCurrentQuestion = () => {
+    const currentBlock = container.querySelectorAll(".question-block")[currentPage];
+    if (!currentBlock) return; // Validación extra
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'add-option';
-    btn.textContent = '+';
+    const title = currentBlock.querySelector('input[name="question-text"]').value.trim();
+    const options = Array.from(
+        currentBlock.querySelectorAll(".option-input")
+    ).map((o) => o.value.trim());
+    const correctAnswer = Array.from(
+        currentBlock.querySelectorAll(".correct-option-radio")
+    ).findIndex((r) => r.checked);
 
-    optionDiv.appendChild(input);
-    optionDiv.appendChild(btn);
+    exams.questions[currentPage] = { title, options, correctAnswer };
+    saveToLocalStorage();
+};
 
-    currentQuestionBlock.appendChild(optionDiv);
-    e.target.remove();
+const validateExamInfo = () => exams.title && exams.description;
 
-    updateDraftFromDOM();
-});
+const validateQuestion = (block) => {
+    const title = block.querySelector('input[name="question-text"]').value.trim();
+    const options = Array.from(block.querySelectorAll(".option-input")).map((o) =>
+        o.value.trim()
+    );
+    const correctAnswer = Array.from(
+        block.querySelectorAll(".correct-option-radio")
+    ).some((r) => r.checked);
 
-// -------------------- Agregar nueva pregunta --------------------
-addQuestionBtn.addEventListener('click', () => {
-    const lastBlock = container.querySelectorAll('.question-block')[currentPage][0] || container.querySelector('.question-block:last-child');
-    const checked = validationExamFinish(container.querySelector('.question-block:last-child'));
-    if (checked === false) return;
+    if (!title) return alert("Debe escribir la pregunta.") && false;
+    if (options.length < 2) return alert("Debe agregar al menos 2 opciones.") && false;
+    if (options.some((o) => !o)) return alert("Complete todas las opciones.") && false;
+    if (!correctAnswer) return alert("Seleccione una respuesta correcta.") && false;
+    return true;
+};
 
-    const newBlock = createQuestionBlock();
-    container.appendChild(newBlock);
-    updateDraftFromDOM();
+// --- Event Listeners Globales ---
 
-    currentPage = container.querySelectorAll('.question-block').length - 1;
-    showQuestion(currentPage);
-});
+document.addEventListener("click", (e) => {
+    // Solo nos interesa si el click fue dentro de un bloque de pregunta
+    const block = e.target.closest(".question-block");
+    if (!block) return;
 
-// -------------------- Guardar draft al escribir --------------------
-document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('input')) {
-        updateDraftFromDOM();
+    const questionIndex = Array.from(container.querySelectorAll(".question-block")).indexOf(block);
+    const optionsList = block.querySelector(".options-list");
+
+    // Agregar Opción
+    if (e.target.classList.contains("add-option")) {
+        const questionInput = block.querySelector('input[name="question-text"]');
+        const currentOptions = block.querySelectorAll(".option-container");
+        const lastOptionInput = currentOptions[currentOptions.length - 1].querySelector(".option-input");
+
+        if (!questionInput.value.trim()) return alert("Debe escribir la pregunta antes de agregar opciones.");
+        if (!lastOptionInput.value.trim()) return alert("Complete la opción antes de agregar otra.");
+
+        // Agregar
+        optionsList.appendChild(createOptionElement());
+        // Reorganizar botones y números
+        updateOptionUI(block, questionIndex);
+    }
+
+    // Eliminar Opción
+    if (e.target.classList.contains("remove-option")) {
+        const option = e.target.closest(".option-container");
+        const allOptions = block.querySelectorAll(".option-container");
+
+        if (allOptions.length <= 1) return; // Seguridad extra
+
+        option.remove();
+        // Reorganizar botones y números tras borrar
+        updateOptionUI(block, questionIndex);
+    }
+
+    // Eliminar Pregunta
+    if (e.target.closest(".delete-question")) {
+        if (container.querySelectorAll(".question-block").length <= 1)
+            return alert("No se puede eliminar la última pregunta.");
+
+        if (!confirm("¿Desea eliminar esta pregunta?")) return;
+
+        const blockToRemove = e.target.closest(".question-block");
+        const indexToRemove = Array.from(container.querySelectorAll(".question-block")).indexOf(blockToRemove);
+
+        blockToRemove.remove();
+        exams.questions.splice(indexToRemove, 1);
+        saveToLocalStorage();
+
+        // Ajustar navegación tras borrar
+        const newTotal = container.querySelectorAll(".question-block").length;
+        const newPage = Math.min(currentPage, newTotal - 1);
+        showQuestion(newPage);
     }
 });
+
+// --- Botones de Navegación ---
+
+nextBtn.addEventListener("click", () => {
+    const block = container.querySelectorAll(".question-block")[currentPage];
+    if (!validateExamInfo() || !validateQuestion(block)) return;
+    saveCurrentQuestion();
+
+    const questions = container.querySelectorAll(".question-block");
+    if (currentPage === questions.length - 1) {
+        // Crear nueva pregunta
+        container.appendChild(createQuestionBlock());
+    }
+    showQuestion(currentPage + 1);
+});
+
+prevBtn.addEventListener("click", () => {
+    saveCurrentQuestion();
+    showQuestion(currentPage - 1);
+});
+
+submitBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (!validateExamInfo()) return alert("Complete información del examen.");
+
+    const allQuestions = container.querySelectorAll(".question-block");
+    for (let i = 0; i < allQuestions.length; i++) {
+        const block = allQuestions[i];
+        currentPage = i;
+        if (!validateQuestion(block)) {
+            showQuestion(i); // Mostrar la pregunta con error
+            return;
+        }
+        saveCurrentQuestion(); // Guardar si es válida
+    }
+
+    exams.questions = exams.questions.filter(
+        (q) => q.title && q.options.length >= 2
+    );
+    saveToLocalStorage();
+    alert("Examen guardado correctamente!");
+    window.location.replace("../index.html");
+});
+
+// --- Inicialización (Corregida para evitar '1 de 2') ---
+
+const init = () => {
+    // 1. Limpiamos el HTML para que no haya duplicados ni basura vieja
+    container.innerHTML = "";
+
+    modalTitle.value = exams.title;
+    modalDesc.value = exams.description;
+
+    // 2. Cargamos preguntas existentes o creamos la primera limpia
+    if (exams.questions.length === 0) {
+        container.appendChild(createQuestionBlock());
+    } else {
+        exams.questions.forEach((q) =>
+            container.appendChild(createQuestionBlock(q))
+        );
+    }
+
+    // 3. Reseteamos a la página 0
+    currentPage = 0;
+    showQuestion(currentPage);
+};
+
+init();
