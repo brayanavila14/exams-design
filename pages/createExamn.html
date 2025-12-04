@@ -1,77 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="icon" type="image/x-icon" href="../../favicon.ico" />
-	<link rel="stylesheet" href="../styles/createExam.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-	<title>Crear Examen</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="../../favicon.ico" />
+    <link rel="stylesheet" href="../styles/createExam.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <title>Crear Examen</title>
 </head>
 <body>
-	<div id="exam-modal" class="modal">
-		<div class="modal-content">
-			<h3>Información del Examen</h3>
-			<label for="modal-exam-title">Título del Examen:</label>
-			<input type="text" id="modal-exam-title" class="input" />
 
-			<label for="modal-exam-description">Descripción del Examen:</label>
-			<textarea id="modal-exam-description" class="input" rows="3"></textarea>
+    <div id="exam-modal" class="modal">
+        <div class="modal-content">
+            <h3>Información del Examen</h3>
+            <label for="modal-exam-title">Título del Examen:</label>
+            <input type="text" id="modal-exam-title" class="input" placeholder="Ej: Matemáticas Básicas" />
 
-			<button type="button" id="save-exam-info">Guardar</button>
-		</div>
-	</div>
+            <label for="modal-exam-description">Descripción del Examen:</label>
+            <textarea id="modal-exam-description" class="input" rows="3" placeholder="Descripción breve..."></textarea>
 
-	<div class="container">
-		<header class="exam-header">
-			<h1>
-				Crear un Nuevo Examen
-				<button type="button" id="open-exam-modal-btn" title="Editar Información">
-					<i class="fas fa-edit"></i> Info
-				</button>
-			</h1>
-		</header>
+            <button type="button" id="save-exam-info">Guardar</button>
+        </div>
+    </div>
 
-		<form id="create-exam-form">
-			<section class="exam-questions">
-				<h2>Preguntas del Examen</h2>
+    <div class="container">
+        <header class="exam-header">
+            <h1>
+                Crear un Nuevo Examen
+                <button type="button" id="open-exam-modal-btn" title="Editar Información">
+                    <i class="fas fa-edit"></i> Info
+                </button>
+            </h1>
+        </header>
 
-				<div id="questions-container">
-					<div class="question-block">
-						<div class="question-head">
-							<label>Pregunta:</label>
-							<button type="button" class="delete-question" title="Eliminar Pregunta">
-								<i class="fas fa-trash-alt"></i>
-							</button>
-						</div>
-						<input type="text" name="question-text" class="input" required />
+        <form id="create-exam-form">
+            <section class="exam-questions">
+                <h2>Preguntas del Examen</h2>
 
-						<label>Opciones:</label>
-						<div class="option-container">
-							<input type="radio" name="correct-option-0" class="correct-option-radio" />
-							<input type="text" name="options" class="option-input input" placeholder="Opción 1"
-								required />
-							<button type="button" class="add-option">+</button>
-						</div>
-					</div>
-				</div>
+                <div id="questions-container"></div>
 
-				<div id="pagination-controls">
-					<button type="button" id="prev-question" disabled>Anterior</button>
-					<span id="page-info">Pregunta 1 de 1</span>
-					<button type="button" id="next-question">Siguiente</button>
-				</div>
-			</section>
+                <div id="pagination-controls">
+                    <button type="button" id="prev-question" disabled>Anterior</button>
+                    <span id="page-info">Cargando...</span>
+                    <button type="button" id="next-question">Siguiente</button>
+                </div>
+            </section>
 
-			<div class="actions button-group">
-				<button id="submitButton" class="submit-btn" type="submit">Guardar Examen</button>
-				<button type="button" class="back-btn" onclick="window.location.href='../index.html'">Volver al
-					inicio</button>
-			</div>
-		</form>
-	</div>
+            <div class="actions button-group">
+                <button id="submitButton" class="submit-btn" type="submit">Guardar Examen</button>
+                <button type="button" class="back-btn" onclick="window.location.href='../index.html'">
+                    Volver al inicio
+                </button>
+            </div>
+        </form>
+    </div>
 
-	<script src="../scripts/createExam.js"></script>
+    <script src="../scripts/createExam.js"></script>
 </body>
-
 </html>
