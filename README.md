@@ -1,29 +1,69 @@
-# 🎨✨ *Design Exam App* — Aplicación de Exámenes
+<div align="center">
 
-Una aplicación sencilla y funcional para **crear y realizar exámenes**, desarrollada únicamente con **HTML, CSS y JavaScript puro**, como parte de un proyecto universitario.
+  <h1>📚 Design Exam App</h1>
+  
+  <p>
+    <strong>Una solución minimalista para la gestión y simulación de exámenes académicos.</strong>
+  </p>
+
+  <p>
+    <a href="https://tuproyecto.vercel.app">
+      <img src="https://img.shields.io/badge/Demo-Live-success?style=for-the-badge&logo=vercel" alt="Demo Live" />
+    </a>
+    <a href="#tech-stack">
+      <img src="https://img.shields.io/badge/Status-Completado-blue?style=for-the-badge" alt="Status" />
+    </a>
+  </p>
+
+  <p>
+    Built with 🧠 by <a href="https://github.com/tu-usuario">BrayDev</a>
+  </p>
+</div>
 
 ---
 
-## 📌 Descripción del Proyecto
+## 🧐 Sobre el Proyecto
 
-Este proyecto es una pequeña aplicación web que permite:
+**Design Exam App** nació como un proyecto universitario con un objetivo claro: demostrar que no se necesitan frameworks pesados para construir aplicaciones funcionales y reactivas. 
 
-- 📝 **Crear exámenes**
-- 🧪 **Realizar exámenes**
-- 📊 **Funciones basicas como la nota promedio**
+Esta herramienta permite crear cuestionarios personalizados y autoevaluarse, todo ejecutándose en el lado del cliente con la velocidad pura de **Vanilla JavaScript**.
 
 ---
 
 ## 🚀 Características Principales
 
-- ✔️ Interfaz simple, bonita y funcional  
-- ✔️ Navegación rápida mediante botones  
-- ✔️ Código limpio y organizado  
-- ✔️ Uso de *JavaScript puro* para manejar lógica y redirecciones  
-- ✔️ *CSS puro* para los estilos  
-- ✔️ 100% libre de frameworks  
+Esta aplicación se destaca por su simplicidad y eficiencia:
 
+* **🛠️ Creación de Tests:** Interfaz intuitiva para formular preguntas y respuestas dinámicamente.
+* **🧪 Simulador de Examen:** Entorno libre de distracciones para presentar la prueba.
+* **📊 Sistema de Calificación:** Algoritmo inmediato que calcula el promedio y muestra los resultados al finalizar.
+* **🎨 UI Minimalista:** Diseño limpio y responsivo (CSS puro) enfocado en la usabilidad.
+* **⚡ Zero Dependencies:** Sin librerías externas, sin tiempos de carga. Solo código nativo.
 
+---
 
+## 🛠️ Stack Tecnológico
 
+Volviendo a las bases. Este proyecto explora la potencia de los estándares web:
 
+| Tecnología | Uso |
+| :--- | :--- |
+| ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white) | Estructura semántica y accesibilidad. |
+| ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white) | Diseño responsivo, Grid y Flexbox. |
+| ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) | Lógica de negocio, manipulación del DOM y cálculos. |
+
+---
+
+## 📂 Estructura del Proyecto
+
+La arquitectura de carpetas está diseñada para ser escalable y legible:
+
+```text
+/design-exam-app
+│
+├── 📁 assets/          # Imágenes y recursos estáticos
+├── 📁 css/             # Estilos (main.css, responsive.css)
+├── 📁 js/              # Lógica (app.js, exam-logic.js)
+├── index.html          # Punto de entrada (Dashboard)
+├── create-exam.html    # Vista del creador
+└── take-exam.html      # Vista del estudiante
