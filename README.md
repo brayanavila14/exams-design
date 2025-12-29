@@ -67,3 +67,34 @@ La arquitectura de carpetas está diseñada para ser escalable y legible:
 ├── index.html          # Punto de entrada (Dashboard)
 ├── create-exam.html    # Vista del creador
 └── take-exam.html      # Vista del estudiante
+
+## 💻 Instalación y Uso
+
+Como no requiere dependencias de Node.js, ¡es muy fácil de probar!
+
+1.  **Clona el repositorio:**
+    ```bash
+    git clone [https://github.com/tu-usuario/design-exam-app.git](https://github.com/tu-usuario/design-exam-app.git)
+    ```
+
+2.  **Ejecuta el proyecto:**
+    * Simplemente abre el archivo `index.html` en tu navegador favorito (Chrome, Arc, Edge).
+    * *Tip:* Usa la extensión **Live Server** de VS Code para una mejor experiencia.
+
+---
+
+## 🤝 Contribuciones
+
+Las sugerencias son bienvenidas. Si tienes una idea para mejorar la lógica de los exámenes:
+
+1.  Haz un Fork del proyecto.
+2.  Crea una rama (`git checkout -b feature/MejoraLogica`).
+3.  Haz Commit (`git commit -m 'Mejorado el cálculo de notas'`).
+4.  Haz Push (`git push origin feature/MejoraLogica`).
+5.  Abre un Pull Request.
+
+---
+
+<div align="center">
+  <sub>Desarrollado como parte de un proyecto académico universitario.</sub>
+</div>
