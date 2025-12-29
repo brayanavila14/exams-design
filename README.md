@@ -7,7 +7,7 @@
   </p>
 
   <p>
-    <a href="https://tuproyecto.vercel.app">
+    <a href="https://brayanavila14.github.io/exams-design/">
       <img src="https://img.shields.io/badge/Demo-Live-success?style=for-the-badge&logo=vercel" alt="Demo Live" />
     </a>
     <a href="#tech-stack">
@@ -16,7 +16,7 @@
   </p>
 
   <p>
-    Built with 🧠 by <a href="https://github.com/tu-usuario">BrayDev</a>
+    Built with 🧠 by <a href="https://github.com/brayanavila14">BrayDev</a>
   </p>
 </div>
 
